@@ -1,47 +1,46 @@
 from datetime import datetime, timedelta
 
-def reconcile_accounts(list1, list2):
+def reconcile_accounts(lista1, lista2):
     def parse_date(date_str):
         return datetime.strptime(date_str, "%Y-%m-%d")
     
-    def format_date(date_obj):
+    def data_formatada(date_obj):
         return date_obj.strftime("%Y-%m-%d")
     
-    def find_matching_transaction(transaction, other_list):
-        trans_date = parse_date(transaction[0])
-        for i, other in enumerate(other_list):
+    def match_transacao(transacao, other_lista):
+        trans_date = parse_date(transacao[0])
+        for i, other in enumerate(other_lista):
             other_date = parse_date(other[0])
             if (trans_date == other_date or
                 trans_date == other_date - timedelta(days=1) or
                 trans_date == other_date + timedelta(days=1)):
-                if transaction[1:] == other[1:]:
+                if transacao[1:] == other[1:]:
                     return i
         return -1
     
-    def add_status_column(transactions, found_status):
-        return [transaction + [found_status] for transaction in transactions]
+    def add_status(transacaos, found_status):
+        return [transacao + [found_status] for transacao in transacaos]
     
-    list1_with_status = []
-    list2_with_status = []
+    lista1_com_status = []
+    lista2_com_status = []
     
-    # Make copies of the lists for modification
-    list1_copy = [transaction[:] for transaction in list1]
-    list2_copy = [transaction[:] for transaction in list2]
+    lista1_copy = [transacao[:] for transacao in lista1]
+    lista2_copy = [transacao[:] for transacao in lista2]
     
-    # Reconcile list1 against list2
-    for i, transaction in enumerate(list1_copy):
-        match_index = find_matching_transaction(transaction, list2_copy)
+    # Reconciliando as contas lista 1 com lista2
+    for i, transacao in enumerate(lista1_copy):
+        match_index = match_transacao(transacao, lista2_copy)
         if match_index != -1:
-            list2_copy[match_index].append('FOUND')
-            list1_with_status.append(transaction + ['FOUND'])
+            lista2_copy[match_index].append('FOUND')
+            lista1_com_status.append(transacao + ['FOUND'])
         else:
-            list1_with_status.append(transaction + ['MISSING'])
+            lista1_com_status.append(transacao + ['MISSING'])
     
-    # For the remaining items in list2 that were not matched
-    for transaction in list2_copy:
-        if len(transaction) == 4:  # If it doesn't have status, it's missing
-            list2_with_status.append(transaction + ['MISSING'])
+    # add missing lista 2 caso não tenha
+    for transacao in lista2_copy:
+        if len(transacao) == 4:
+            lista2_com_status.append(transacao + ['MISSING'])
         else:
-            list2_with_status.append(transaction)
+            lista2_com_status.append(transacao)
     
-    return list1_with_status, list2_with_status
+    return lista1_com_status, lista2_com_status

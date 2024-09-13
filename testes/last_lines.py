@@ -1,51 +1,51 @@
 import io
 
-def last_lines(file_path, chunk_size=io.DEFAULT_BUFFER_SIZE):
+def last_lines(file_path, tamanho=io.DEFAULT_BUFFER_SIZE):
 
     #Ler o arquivo TXT em pedaços
-    def read_in_chunks(file, chunk_size):
+    def ler_pedacos(file, tamanho):
         while True:
-            chunk = file.read(chunk_size)
-            if not chunk:
+            pedaco = file.read(tamanho)
+            if not pedaco:
                 break
-            yield chunk
+            yield pedaco
 
 
     #Garantir a codificação 
-    def safe_decode(chunk, encoding='utf-8'):
-        decoded, remainder = '', b''
+    def safe_code(pedaco, encoding='utf-8'):
+        decoded, lembrar = '', b''
         try:
-            decoded = chunk.decode(encoding)
+            decoded = pedaco.decode(encoding)
         except UnicodeDecodeError as e:
-            decoded = chunk[:e.start].decode(encoding)
-            remainder = chunk[e.start:]
-        return decoded, remainder
+            decoded = pedaco[:e.start].decode(encoding)
+            lembrar = pedaco[e.start:]
+        return decoded, lembrar
 
 
 
-    lines = []
-    remainder = b''
+    linhas = []
+    lembrar = b''
 
     with open(file_path, 'rb') as file:
-        for chunk in read_in_chunks(file, chunk_size):
-            chunk = remainder + chunk
-            decoded_chunk, remainder = safe_decode(chunk)
+        for pedaco in ler_pedacos(file, tamanho):
+            pedaco = lembrar + pedaco
+            pedaco_certo, lembrar = safe_code(pedaco)
             
-            split_lines = decoded_chunk.splitlines(keepends=True)
+            linhas_separadas = pedaco_certo.splitlines(keepends=True)
 
-            if split_lines:
-                lines.extend(split_lines)
+            if linhas_separadas:
+                linhas.extend(linhas_separadas)
 
             #Guardando a ultima linha
-            if not decoded_chunk.endswith('\n'):
-                remainder = split_lines[-1].encode('utf-8') + remainder
+            if not pedaco_certo.endswith('\n'):
+                lembrar = linhas_separadas[-1].encode('utf-8') + lembrar
             else:
-                remainder = b''
+                lembrar = b''
 
     #Adiciona a quebra de linha
-    lines = [line if line.endswith('\n') else line + '\n' for line in lines]
+    linhas = [linha if linha.endswith('\n') else linha + '\n' for linha in linhas]
 
     #Reverte as linhas
-    reversed_lines = reversed(lines)
+    linhas_reversas = reversed(linhas)
 
-    return iter(reversed_lines)
+    return iter(linhas_reversas)
